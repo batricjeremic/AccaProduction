@@ -1,0 +1,107 @@
+﻿@model AccaProduction.ViewModels.KandidatsAndExams
+@{
+    ViewData["Title"] = "Create";
+}
+
+<br />
+<h2>Nova Prijava</h2>
+<hr />
+<form asp-action="Create" asp-controller="Polaganjas">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="@Model.NewPolaganje.KandidatId" />
+    <input type="hidden" asp-for="@Model.NewPolaganje.IspitId" />
+    <div class="form-border" style="padding-left:50px;">
+
+        <p class="row">Detalji kandidata</p>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-info" asp-for="@Model.Kandidat.Ime"></label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.Kandidat.Ime" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-info" asp-for="@Model.Kandidat.Prezime"></label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.Kandidat.Prezime" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-info" asp-for="@Model.Kandidat.IdAccaNumber">ID</label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.NewPolaganje.KandidatId" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <hr />
+
+        <p class="row">Detalji ispita</p>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-success" asp-for="@Model.Ispit.Name"></label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.Ispit.Name" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-success" asp-for="@Model.Ispit.OldCode">Oznaka</label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.Ispit.OldCode" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-warning">Broj polaganja</label>
+            </div>
+            <div class="col-sm-3">
+                <input class="form-control" asp-for="@Model.BrojPolaganja" disabled style="padding-left:5px;" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-info" asp-for="@Model.NewPolaganje.PotrebneKnjige"></label>
+            </div>
+            <div class="col-sm-3">
+                <input type="checkbox" class="pull-right" asp-for="@Model.NewPolaganje.PotrebneKnjige" style="padding-left:5px;" />
+            </div>
+        </div>
+
+        <hr />
+
+        <p class="row">Odsustvo</p>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-1">
+                <label class="label label-info" style="white-space:normal;" asp-for="@Model.NewPolaganje.StudyLeaveStartDate">Početak</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" asp-for="@Model.NewPolaganje.StudyLeaveStartDate" style="padding-left:5px;" />
+            </div>
+            <div class="col-sm-1">
+                <label class="label label-info" asp-for="@Model.NewPolaganje.StudyLeaveEndDate">Završetak</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" asp-for="@Model.NewPolaganje.StudyLeaveEndDate" style="padding-left:5px;" />
+            </div>
+        </div>
+        <hr />
+
+        @if (Model.BrojPolaganja > 0)
+        {
+            <div class="alert alert-warning" style="padding:5px;">
+                <strong>Obaveštenje!</strong> Ovaj ispit ste već polagali. Prijava ispita podrazumevaće <strong>obustavu ispita od zarade!</strong>
+            </div>
+        }
+
+        <input type="submit" class="btn btn-sm btn-primary form-control" value="Prijavi Ispit" style="width:auto" />
+        <a class="btn btn-default" asp-action="Details" asp-route-id="@Model.Kandidat.IdAccaNumber" asp-controller="Kandidats">Povratak na pregled kandidata</a>
+        <a class="btn btn-success" asp-action="Index" asp-controller="Kandidats">Povratak na listu kandidata</a>
+
+    </div>
+</form>

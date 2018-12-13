@@ -1,0 +1,140 @@
+﻿@model AccaProduction.ViewModels.PolaganjasView
+@{
+    ViewData["Title"] = "Index";
+}
+
+<br />
+<h2>Pregled prijava i polaganja</h2>
+<hr />
+
+
+<div class="form-border">
+    <h4>Neprocesuirane prijave/ispiti</h4>
+
+    @if (Model.NonProcessed.Count() == 0)
+    {
+        <br />
+        <label class="label label-default" style="font-size:larger;">Za odabrani set kandidata ne postoje neprocesuirani ispiti</label>
+    }
+    else
+    {
+        <table class="table table-condensed table-striped table-hover">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Ispit.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Ispit.OldCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Ispit.NewCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().DatumPolaganja)
+                </th>
+                <th>
+                    Ime i prezime
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Status.StatusName)
+                </th>
+                <th>
+                    Uredi
+                </th>
+            </tr>
+
+
+            @foreach (var item in Model.NonProcessed)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Ispit.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Ispit.OldCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Ispit.NewCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DatumPolaganja)
+                    </td>
+                    <td>
+                        @($"{item.Kandidat.Ime} {item.Kandidat.Prezime}")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status.StatusName)
+                    </td>
+                    <td>
+                        <a asp-action="Update" asp-controller="Polaganjas" asp-route-polaganjeID="@item.Id" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-ok"></span> &nbsp; Promeni status</a>
+                    </td>
+                </tr>
+            }
+
+        </table>
+    }
+
+</div>
+
+<br />
+
+<div class="form-border">
+    <h4>Procesuirani ispiti</h4>
+    <table class="table table-condensed table-striped table-hover">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Ispit.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Ispit.OldCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Ispit.NewCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().DatumPolaganja)
+            </th>
+            <th>
+                Ime i prezime
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Status.StatusName)
+            </th>
+        </tr>
+        @foreach (var item in Model.Processed)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ispit.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ispit.OldCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ispit.NewCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DatumPolaganja)
+                </td>
+                <td>
+                    @($"{item.Kandidat.Ime} {item.Kandidat.Prezime}")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status.StatusName)
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+<br />
+
+<script>
+    function getSelectListValue() {
+        return document.getElementById("statusID").nodeValue;
+    }
+</script>
+
+

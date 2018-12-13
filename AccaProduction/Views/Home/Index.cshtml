@@ -1,0 +1,60 @@
+﻿@model AccaProduction.ViewModels.Dashboard
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<br />
+<h2>Kratak pregled</h2>
+<hr />
+
+<div class="row">
+    @* U ovom redu treba prikazati tabelu sa osnovnim informacijama *@
+    <div class="col-sm-3">
+        <div class="row" style="padding:3px;">
+            <div class="col-sm-6" style="padding-left:5px;">
+                <label class="label label-info"><span class="glyphicon glyphicon-heart"></span>&nbsp; Aktivnih kandidata:</label>
+            </div>
+            <div class="col-sm-4 col-sm-offset-2">
+                <input asp-for="@Model.BrojKandidata" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
+            </div>
+        </div>
+        <div class="row" style="padding:3px;">
+            <div class="col-sm-6" style="padding-left:5px;">
+                <label class="label label-info"><span class="glyphicon glyphicon-book"></span>&nbsp; Ispita u programu:</label>
+            </div>
+            <div class="col-sm-4 col-sm-offset-2">
+                <input asp-for="@Model.BrojIspita" class="form-control" style="text-align:right; height:25px; padding-right:0px;" disabled />
+            </div>
+        </div>
+        <div class="row" style="padding:3px;">
+            <div class="col-sm-6" style="padding-left:5px;">
+                <label class="label label-info"><span class="glyphicon glyphicon-tasks"></span>&nbsp; Broj prijava:</label>
+            </div>
+            <div class="col-sm-4 col-sm-offset-2">
+                <input asp-for="@Model.UkupanBrojPolaganja" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
+            </div>
+        </div>
+        <div class="row" style="padding:3px;">
+            <div class="col-sm-6" style="padding-left:5px;">
+                <label class="label label-info"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp; Uspešnih polaganja:</label>
+            </div>
+            <div class="col-sm-4 col-sm-offset-2">
+                <input asp-for="@Model.BrojUspesnihPolaganja" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
+            </div>
+        </div>
+
+        <div class="row" style="padding:3px;">
+            <div class="col-sm-6" style="padding-left:5px;">
+                <label class="label label-info"><span class="glyphicon glyphicon-leaf"></span>&nbsp; Uspešnost:</label>
+            </div>
+            <div class="col-sm-4 col-sm-offset-2">
+                <input value="@ViewData["procenatUspesnosti"]" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
+            </div>
+        </div>
+
+    </div>
+    
+</div>
+

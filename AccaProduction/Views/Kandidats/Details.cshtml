@@ -1,0 +1,125 @@
+﻿@model AccaProduction.ViewModels.KandidatsAndExams
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<br />
+<h2>Pregled ispita po kandidatu</h2>
+<hr />
+<div class="form-border"> 
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Kandidat.Ime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kandidat.Ime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Kandidat.Prezime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kandidat.Prezime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Kandidat.Email)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kandidat.Email)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Kandidat.Drzava)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kandidat.Drzava)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Kandidat.Odeljenje)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Kandidat.Odeljenje)
+        </dd>
+    </dl>
+</div>
+<br />
+
+<div class="form-border">
+    <input type="hidden" value="@Model.Kandidat.IdAccaNumber" />
+    <h4>Ispiti dostupni za polaganje</h4>
+    <table class="table table-condensed table-hover">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.OldCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.NewCode)
+            </th>
+            <th>
+            </th>
+        </tr>
+        @foreach (var item in Model.NepolozeniIspiti)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OldCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NewCode)
+                </td>
+                <td>
+                    <a asp-action="Create" asp-controller="Polaganjas" asp-route-IspitID="@item.Id" asp-route-KandidatId="@Model.Kandidat.IdAccaNumber" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-book"></span> &nbsp; Prijavi ispit</a>
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+<br />
+<div class="form-border">
+    <h4>Pregled Položenih Ispita</h4>
+    <table class="table table-condensed table-hover">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.OldCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.NewCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().DatumPolaganja)
+            </th>
+        </tr>
+        @foreach (var item in Model.PolozeniIspiti)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ispit.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ispit.OldCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ispit.NewCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DatumPolaganja)
+            </td>
+        </tr>
+        }
+
+    </table>
+</div>
+<br />
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Kandidat.IdAccaNumber" class="btn btn-sm btn-success">Uredi detalje kandidata</a>
+    <a asp-action="Index" class="btn btn-sm btn-primary">Povratak na listu kandidata</a>
+</div>

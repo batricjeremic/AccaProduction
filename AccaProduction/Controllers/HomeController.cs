@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using AccaProduction.Models;
 using AccaProduction.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace AccaProduction.Controllers
 {
@@ -20,6 +21,7 @@ namespace AccaProduction.Controllers
 
         public IActionResult Index()
         {
+
             Dashboard db = new Dashboard()
             {
                 BrojKandidata = _context.Kandidat.Count(),
@@ -28,7 +30,9 @@ namespace AccaProduction.Controllers
                 BrojUspesnihPolaganja = _context.Polaganja.Where(p=>p.StatusId==3).Count()
             };
 
-            ViewData["procenatUspesnosti"] = (double)db.BrojUspesnihPolaganja / db.UkupanBrojPolaganja;
+
+
+            ViewData["procenatUspesnosti"] = ((double)db.BrojUspesnihPolaganja / db.UkupanBrojPolaganja).ToString("##.00%");
  
             return View(db);
         }

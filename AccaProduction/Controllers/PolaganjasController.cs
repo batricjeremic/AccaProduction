@@ -4,12 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AccaProduction.Data;
 using AccaProduction.Models;
+using AccaProduction.Utils;
 using AccaProduction.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AccaProduction.Controllers
 {
+    [Authorize]
     public class PolaganjasController : Controller
     {
         private readonly AccaCandidatesContext _context;
@@ -24,10 +27,18 @@ namespace AccaProduction.Controllers
         {
             PolaganjasView polaganjasView = new PolaganjasView()
             {
-                NonProcessed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Where(p => p.StatusId < 3),
-                Processed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Where(p => p.StatusId >= 3),
+                NonProcessed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Include(p=>p.Rok).Where(p => p.StatusId < 3),
+                Processed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Include(p => p.Rok).Where(p => p.StatusId >= 3),
                 Statusi = _context.StatusPrijave.ToList()
             };
+
+            if (!User.IsInRole(SD.AdminEndUser))
+            {
+                int kandidatID = _context.Kandidat.Where(k => k.Email == User.Identities.FirstOrDefault().Name).Select(i => i.IdAccaNumber).FirstOrDefault();
+
+                polaganjasView.NonProcessed = polaganjasView.NonProcessed.Where(k => k.KandidatId == kandidatID);
+                polaganjasView.Processed = polaganjasView.Processed.Where(k => k.KandidatId == kandidatID);
+            }
 
             return View(polaganjasView);
         }
@@ -45,6 +56,7 @@ namespace AccaProduction.Controllers
             var kandidat = _context.Kandidat.Where(k => k.IdAccaNumber == kandidatID).FirstOrDefault();
             var ispit = _context.Ispit.Where(i => i.Id == ispitID).FirstOrDefault();
             var ispits = _context.Ispit.Select(i => i).ToList();
+            var roks = await _context.Rok.Where(r=>r.ActiveStatus).Select(i => i).ToListAsync();
 
             int? brojPolaganja = _context.Polaganja.Where(p => p.IspitId == ispitID && p.KandidatId == kandidatID).Count();
 
@@ -57,6 +69,7 @@ namespace AccaProduction.Controllers
             {
                 Kandidat = kandidat,
                 Ispits = ispits,
+                Roks = roks,
                 Ispit = ispit,
                 BrojPolaganja = brojPolaganja ?? 0,
                 NewPolaganje = new Polaganja()
@@ -79,6 +92,7 @@ namespace AccaProduction.Controllers
             KandidatsAndExams ke = model;
             Polaganja prijava = model.NewPolaganje;
             prijava.StatusId = 1;
+            //prijava.RokId = ke.Rok.Id;
             _context.Add(prijava);
             await _context.SaveChangesAsync();
 

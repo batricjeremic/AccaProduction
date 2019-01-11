@@ -1,0 +1,30 @@
+﻿@model AccaProduction.Models.Rok
+
+@{
+    ViewData["Title"] = "Rok - detalji";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<h2>Detalji ispitnog roka</h2>
+<hr />
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.NazivRoka)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NazivRoka)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ActiveStatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ActiveStatus)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" class="btn btn-sm btn-success" asp-route-id="@Model.Id">Izmeni detalje</a>
+    <a asp-action="Index" class="btn btn-sm btn-default">Povratak na pregled rokova</a>
+</div>

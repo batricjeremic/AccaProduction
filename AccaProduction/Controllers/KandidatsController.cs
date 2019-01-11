@@ -8,10 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using AccaProduction.Models;
 using AccaProduction.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using AccaProduction.Utils;
+using AccaProduction.Repository;
 
 namespace AccaProduction.Controllers
 {
 
+    [Authorize(Roles = SD.AdminEndUser)]
     public class KandidatsController : Controller
     {
         private readonly AccaCandidatesContext _context;
@@ -24,15 +27,18 @@ namespace AccaProduction.Controllers
         // GET: Kandidats
         public async Task<IActionResult> Index(string option = null, string search = null)
         {
+
             var kandidats = await _context.Kandidat.ToListAsync();
 
-            if (option == "email" && search != null)
+
+            //this code block should be replaced with dynamic query
+            if (option == "Email" && search != null)
             {
                 kandidats = kandidats.Where(u => u.Email.ToLower().Contains(search.ToLower())).ToList();
             }
             else
             {
-                if (option == "name" && search != null)
+                if (option == "Ime" && search != null)
                 {
                     kandidats = kandidats.Where(u => u.Ime.ToLower().Contains(search.ToLower())
                             || u.Prezime.ToLower().Contains(search.ToLower())
@@ -40,7 +46,7 @@ namespace AccaProduction.Controllers
                 }
                 else
                 {
-                    if (option == "department" && search != null)
+                    if (option == "Odeljenje" && search != null)
                     {
                         kandidats = kandidats.Where(u => u.Odeljenje.ToLower().Contains(search.ToLower())).ToList();
                     }
@@ -68,11 +74,40 @@ namespace AccaProduction.Controllers
             KandidatsAndExams ke = new KandidatsAndExams
             {
                 Kandidat = kandidat,
-                PolozeniIspiti = _context.Polaganja.Where(p => (p.KandidatId == kandidat.IdAccaNumber) && (p.StatusId == 3)).Include(i => i.Ispit).OrderBy(i=>i.IspitId).ToList(),
-                NepolozeniIspiti = _context.Ispit.Include(p => p.Polaganja).Where(i=>i.Polaganja.All(k=>!(k.KandidatId==id)||k.StatusId!=3)).OrderBy(i=>i.Id)
+                PolozeniIspiti = _context.Polaganja.Where(p => (p.KandidatId == kandidat.IdAccaNumber) && (p.StatusId == 3 || p.StatusId == 7)).Include(i => i.Ispit).Include(r => r.Rok).OrderBy(i => i.IspitId).ToList(),
+                NepolozeniIspiti = _context.Ispit.Include(p => p.Polaganja).Where(i => i.Polaganja.All(k => !(k.KandidatId == id) || (k.StatusId != 3 && k.StatusId != 7))).OrderBy(i => i.Id)
             };
 
             return View(ke);
+        }
+
+        // GET: Kandidats/Detalji/email
+        [AllowAnonymous]
+        [Authorize(Roles = SD.CandidatEndUSer)]
+        public async Task<IActionResult> Detalji(string email)
+        {
+            if (email == null)
+            {
+                return NotFound();
+            }
+
+            int id = await _context.Kandidat.Where(k => k.Email == email).Select(i => i.IdAccaNumber).FirstOrDefaultAsync();
+
+            var kandidat = await _context.Kandidat
+                .FirstOrDefaultAsync(m => m.IdAccaNumber == id);
+            if (kandidat == null)
+            {
+                return NotFound();
+            }
+
+            KandidatsAndExams ke = new KandidatsAndExams
+            {
+                Kandidat = kandidat,
+                PolozeniIspiti = _context.Polaganja.Where(p => (p.KandidatId == kandidat.IdAccaNumber) && (p.StatusId == 3 || p.StatusId == 7)).Include(i => i.Ispit).Include(r => r.Rok).OrderBy(i => i.IspitId).ToList(),
+                NepolozeniIspiti = _context.Ispit.Include(p => p.Polaganja).Where(i => i.Polaganja.All(k => !(k.KandidatId == id) || k.StatusId != 3 || k.StatusId != 7)).OrderBy(i => i.Id)
+            };
+
+            return View("Details", ke);
         }
 
         // GET: Kandidats/Create

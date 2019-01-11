@@ -1,0 +1,38 @@
+﻿@model AccaProduction.Models.Rok
+
+@{
+    ViewData["Title"] = "Rok - izmena";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<h2>Izmena detalja ispitnog roka</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="NazivRoka" class="control-label"></label>
+                <input asp-for="NazivRoka" class="form-control" />
+                <span asp-validation-for="NazivRoka" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="ActiveStatus" /> @Html.DisplayNameFor(model => model.ActiveStatus)
+                    </label>
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <input type="submit" class="btn btn-sm btn-primary" value="Izmeni"  />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a class="btn btn-sm btn-success" asp-action="Index">Povratak na pregled rokova</a>
+</div>
+

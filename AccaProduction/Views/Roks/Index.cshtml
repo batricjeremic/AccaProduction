@@ -1,0 +1,42 @@
+﻿@model IEnumerable<AccaProduction.Models.Rok>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<h2>Pregled ispitnih rokova</h2>
+<hr />
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Kreiranje novog roka</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NazivRoka)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ActiveStatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NazivRoka)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ActiveStatus)
+            </td>
+            <td>
+                @Html.Partial("_TableButtonPartial", new IndividualButtonPartial { RokId = item.Id })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

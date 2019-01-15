@@ -1,13 +1,13 @@
 ﻿@model AccaProduction.Models.Kandidat
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Uredi";
 }
 
-<h2>Edit</h2>
-
-<h4>Kandidat</h4>
+<br />
+<h2>Uredi detalje kandidata</h2>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
@@ -39,15 +39,13 @@
                 <span asp-validation-for="Odeljenje" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input type="submit" value="Uredi" class="btn btn-primary" />
+                <a class="btn btn-sm btn-success" asp-action="Index">Povratak na listu kandidata</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

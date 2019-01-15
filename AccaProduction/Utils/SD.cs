@@ -9,5 +9,7 @@ namespace AccaProduction.Utils
     {
         public const string AdminEndUser = "Admin";
         public const string CandidatEndUSer = "Kandidat";
+
+        public enum StatusPrijave { ZahtevPodnet=1,PrijavaProsledjena,IspitPolozen, NedovoljnoBodova,KandidatOdsutan,ZahtevOdbijen,OslobodjenPolaganja }
     }
 }

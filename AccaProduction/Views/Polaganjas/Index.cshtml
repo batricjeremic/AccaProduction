@@ -7,6 +7,15 @@
 <h2>Pregled prijava i polaganja</h2>
 <hr />
 
+<div class="form-border">
+    <form asp-action="ExportToCsv">
+        <input class="btn btn-sm btn-success" type="submit" value="Eksport u Excel" />
+        <input type="hidden" asp-for="@Model.NonProcessed"/>
+    </form>
+</div>
+
+<br />
+
 
 <div class="form-border">
     <h4>Neprocesuirane prijave/ispiti</h4>
@@ -30,13 +39,16 @@
                     @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Ispit.NewCode)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().DatumPolaganja)
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Rok.NazivRoka)
                 </th>
                 <th>
                     Ime i prezime
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Status.StatusName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().TakeNumber)
                 </th>
                 <th>
                     Uredi
@@ -57,13 +69,16 @@
                         @Html.DisplayFor(modelItem => item.Ispit.NewCode)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.DatumPolaganja)
+                        @Html.DisplayFor(modelItem => item.Rok.NazivRoka)
                     </td>
                     <td>
                         @($"{item.Kandidat.Ime} {item.Kandidat.Prezime}")
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Status.StatusName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TakeNumber)
                     </td>
                     <td>
                         <a asp-action="Update" asp-controller="Polaganjas" asp-route-polaganjeID="@item.Id" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-ok"></span> &nbsp; Promeni status</a>
@@ -92,13 +107,16 @@
                 @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Ispit.NewCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().DatumPolaganja)
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Rok.NazivRoka)
             </th>
             <th>
                 Ime i prezime
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().Status.StatusName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed.FirstOrDefault().RequestDate)
             </th>
         </tr>
         @foreach (var item in Model.Processed)
@@ -114,7 +132,7 @@
                     @Html.DisplayFor(modelItem => item.Ispit.NewCode)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DatumPolaganja)
+                    @Html.DisplayFor(modelItem => item.Rok.NazivRoka)
                 </td>
                 <td>
                     @($"{item.Kandidat.Ime} {item.Kandidat.Prezime}")
@@ -123,7 +141,9 @@
                     @Html.DisplayFor(modelItem => item.Status.StatusName)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.RequestDate)
                 </td>
+                <td></td>
             </tr>
         }
 

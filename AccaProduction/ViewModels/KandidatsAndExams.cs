@@ -15,7 +15,10 @@ namespace AccaProduction.ViewModels
         public IEnumerable<Ispit> NepolozeniIspiti { get; set; }
 
         public IEnumerable<Ispit> Ispits { get; set; }
-        public Ispit Ispit { get; set; } 
+        public Ispit Ispit { get; set; }
+
+        public IEnumerable<Rok> Roks { get; set; }
+        public Rok Rok { get; set; }
 
         public int BrojPolaganja { get; set; }
 

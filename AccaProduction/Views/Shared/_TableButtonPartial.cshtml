@@ -8,7 +8,8 @@
                     ButtonType = "btn-primary",
                     Glyph = "pencil",
                     Text = "Edit",
-                    KandidatId = Model.KandidatId
+                    KandidatId = Model.KandidatId,
+                    RokId = Model.RokId
         })
         @Html.Partial("_IndividualButtonPartial", new IndividualButtonPartial
        {
@@ -16,7 +17,8 @@
            ButtonType = "btn-success",
            Glyph = "list",
            Text = "Details",
-           KandidatId = Model.KandidatId
+           KandidatId = Model.KandidatId,
+           RokId = Model.RokId
 
        })
         @Html.Partial("_IndividualButtonPartial", new IndividualButtonPartial
@@ -25,8 +27,8 @@
        ButtonType = "btn-danger",
        Glyph = "trash",
        Text = "Edit",
-       KandidatId = Model.KandidatId
-
+       KandidatId = Model.KandidatId,
+       RokId = Model.RokId
    })
     </div>
 </td>

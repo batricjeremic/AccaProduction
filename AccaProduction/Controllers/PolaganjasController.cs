@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using AccaProduction.Data;
 using AccaProduction.Models;
+using AccaProduction.Repository;
 using AccaProduction.Utils;
 using AccaProduction.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using static AccaProduction.ViewModels.PolaganjasView;
 
 namespace AccaProduction.Controllers
 {
@@ -16,28 +25,38 @@ namespace AccaProduction.Controllers
     public class PolaganjasController : Controller
     {
         private readonly AccaCandidatesContext _context;
+        private readonly IPolaganjaRepository _polaganja;
+        private readonly IKandidatRepository _kandidat;
+        private readonly IIspitRepository _ispit;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public PolaganjasController(AccaCandidatesContext db)
+        public PolaganjasController(AccaCandidatesContext context, IPolaganjaRepository polaganjaRepository, IKandidatRepository kandidat, IIspitRepository ispit, IHostingEnvironment hostingEnvironment)
         {
-            _context = db;
+            _context = context;
+            _polaganja = polaganjaRepository;
+            _kandidat = kandidat;
+            _ispit = ispit;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         //GET: Index
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             PolaganjasView polaganjasView = new PolaganjasView()
-            {
-                NonProcessed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Include(p=>p.Rok).Where(p => p.StatusId < 3),
-                Processed = _context.Polaganja.Include(p => p.Kandidat).Include(p => p.Ispit).Include(p => p.Status).Include(p => p.Rok).Where(p => p.StatusId >= 3),
+            {                
                 Statusi = _context.StatusPrijave.ToList()
             };
 
             if (!User.IsInRole(SD.AdminEndUser))
             {
-                int kandidatID = _context.Kandidat.Where(k => k.Email == User.Identities.FirstOrDefault().Name).Select(i => i.IdAccaNumber).FirstOrDefault();
-
-                polaganjasView.NonProcessed = polaganjasView.NonProcessed.Where(k => k.KandidatId == kandidatID);
-                polaganjasView.Processed = polaganjasView.Processed.Where(k => k.KandidatId == kandidatID);
+                int kandidatID = await _kandidat.GetIdByEmail(User.Identity.Name);
+                polaganjasView.NonProcessed = await _polaganja.GetNonProcessedRequests(kandidatID);
+                polaganjasView.Processed = await _polaganja.GetProcessedRequests(kandidatID);
+            }
+            else
+            {
+                polaganjasView.NonProcessed = await _polaganja.GetNonProcessedRequests();
+                polaganjasView.Processed = await _polaganja.GetProcessedRequests();
             }
 
             return View(polaganjasView);
@@ -51,16 +70,10 @@ namespace AccaProduction.Controllers
                 return NotFound();
             }
 
-            ViewData["Locked"] = true;
+            var kandidat = await _kandidat.GetKandidat((int)kandidatID);
+            var ispit = await _ispit.GetIspit((int)ispitID);
 
-            var kandidat = _context.Kandidat.Where(k => k.IdAccaNumber == kandidatID).FirstOrDefault();
-            var ispit = _context.Ispit.Where(i => i.Id == ispitID).FirstOrDefault();
-            var ispits = _context.Ispit.Select(i => i).ToList();
-            var roks = await _context.Rok.Where(r=>r.ActiveStatus).Select(i => i).ToListAsync();
-
-            int? brojPolaganja = _context.Polaganja.Where(p => p.IspitId == ispitID && p.KandidatId == kandidatID).Count();
-
-            if (kandidat==null || ispits==null)
+            if (kandidat==null || ispit==null)
             {
                 return NotFound();
             }
@@ -68,10 +81,10 @@ namespace AccaProduction.Controllers
             KandidatsAndExams kandidatsAndExams = new KandidatsAndExams()
             {
                 Kandidat = kandidat,
-                Ispits = ispits,
-                Roks = roks,
                 Ispit = ispit,
-                BrojPolaganja = brojPolaganja ?? 0,
+                Ispits = await _context.Ispit.Select(i => i).ToListAsync(),
+                Roks = await _context.Rok.Where(r => r.ActiveStatus).Select(i => i).ToListAsync(),
+                BrojPolaganja = await _polaganja.GetExamTakeNumber((int)ispitID,(int)kandidatID),
                 NewPolaganje = new Polaganja()
                 {
                     IspitId=ispit.Id,
@@ -91,8 +104,10 @@ namespace AccaProduction.Controllers
         {
             KandidatsAndExams ke = model;
             Polaganja prijava = model.NewPolaganje;
+
             prijava.StatusId = 1;
-            //prijava.RokId = ke.Rok.Id;
+            prijava.RequestDate = DateTime.Now;
+
             _context.Add(prijava);
             await _context.SaveChangesAsync();
 
@@ -136,6 +151,48 @@ namespace AccaProduction.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ExportToCsv(IEnumerable<Polaganja> model)
+        {
+            string rootFolder = _hostingEnvironment.WebRootPath;
+            string fileName = "demo.xlsx";
+            string url = string.Format("{0}://{1}/{2}", Request.Scheme, Request.Host, fileName);
+            FileInfo file = new FileInfo(Path.Combine(rootFolder,fileName));
+
+            var memoryStream = new MemoryStream();
+
+            Type modelType = (new Polaganja()).GetType();
+            var modelTest = model.FirstOrDefault();
+
+            using (var fs = new FileStream(Path.Combine(rootFolder, fileName), FileMode.Create, FileAccess.Write))
+            {
+                IWorkbook workbook;
+                workbook = new XSSFWorkbook();
+                ISheet excelSheet = workbook.CreateSheet("export");
+
+                IRow row = excelSheet.CreateRow(0);
+
+                PropertyInfo[] properties = modelType.GetProperties();
+
+
+                //populateHeader
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    row.CreateCell(i).SetCellValue(properties[i].Name);
+                }
+                workbook.Write(fs);
+            }
+
+            using (var stream = new FileStream(Path.Combine(rootFolder, fileName), FileMode.Open))
+            {
+                await stream.CopyToAsync(memoryStream);
+            }
+
+            memoryStream.Position = 0;
+            return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+
+
         }
 
         protected override void Dispose(bool disposing)

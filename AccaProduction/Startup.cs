@@ -13,6 +13,7 @@ using AccaProduction.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AccaProduction.Models;
+using AccaProduction.Repository;
 
 namespace AccaProduction
 {
@@ -35,11 +36,14 @@ namespace AccaProduction
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.AddScoped<IKandidatRepository, KandidatRepository>();
+            services.AddScoped<IPolaganjaRepository, PolaganjaRepository>();
+            services.AddScoped<IIspitRepository, IspitRepository>();
 
             services.AddDbContext<AccaCandidatesContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-.AddEntityFrameworkStores<AccaCandidatesContext>();
+
+            services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultUI().AddEntityFrameworkStores<AccaCandidatesContext>();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

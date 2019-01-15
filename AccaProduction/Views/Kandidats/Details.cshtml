@@ -1,4 +1,5 @@
 ﻿@model AccaProduction.ViewModels.KandidatsAndExams
+@using AccaProduction.Utils
 
 @{
     ViewData["Title"] = "Details";
@@ -95,7 +96,7 @@
                 @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Ispit.NewCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().DatumPolaganja)
+                @Html.DisplayNameFor(model => model.PolozeniIspiti.FirstOrDefault().Rok.NazivRoka)
             </th>
         </tr>
         @foreach (var item in Model.PolozeniIspiti)
@@ -111,7 +112,7 @@
                 @Html.DisplayFor(modelItem => item.Ispit.NewCode)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DatumPolaganja)
+                @Html.DisplayFor(modelItem => item.Rok.NazivRoka)
             </td>
         </tr>
         }
@@ -120,6 +121,9 @@
 </div>
 <br />
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Kandidat.IdAccaNumber" class="btn btn-sm btn-success">Uredi detalje kandidata</a>
-    <a asp-action="Index" class="btn btn-sm btn-primary">Povratak na listu kandidata</a>
+    @if (User.IsInRole(SD.AdminEndUser))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Kandidat.IdAccaNumber" class="btn btn-sm btn-success">Uredi detalje kandidata</a>
+        <a asp-action="Index" class="btn btn-sm btn-primary">Povratak na listu kandidata</a>
+    }
 </div>

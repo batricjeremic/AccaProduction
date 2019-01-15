@@ -16,6 +16,7 @@ namespace AccaProduction.Models
 
 
         public int? KandidatId { get; set; }
+        public int? RokId { get; set; }
 
         public string ActionParameters
         {
@@ -25,6 +26,10 @@ namespace AccaProduction.Models
                 if (KandidatId!= 0 && KandidatId!=null)
                 {
                     param.Append(String.Format("{0}", KandidatId));
+                }
+                if (RokId!=0&& RokId!=null)
+                {
+                    param.Append(string.Format("{0}", RokId));
                 }
                 
 

@@ -18,22 +18,41 @@ namespace AccaProduction.Repository
         }
 
 
-        public async Task<List<Kandidat>> GetFilteredKandidats(string parameter, string value)
+        public async Task<List<Kandidat>> GetFilteredKandidats(string filterProperty, string filterValue)
         {
             var param = Expression.Parameter(typeof(Kandidat), "k");
 
+            var property = Expression.Property(param, filterProperty);
+
+            var toLowerMethod = typeof(string).GetMethod("ToLower", new Type[] { });
 
 
-            var exp = Expression.Lambda<Func<Kandidat, bool>>(
+            var toLowerProperty = Expression.Call(property, toLowerMethod);
+
+            var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
 
-                Expression.Equal(
-                    Expression.Property(param, parameter.ToLower()),
-                    Expression.Constant(value.ToLower())
-                ),
-                param
-            );
+            var constant = Expression.Constant(filterValue, typeof(string));
+
+            var toLowerValue = Expression.Call(constant, toLowerMethod);
+
+
+            var body = Expression.Call(toLowerProperty, containsMethod, toLowerValue);
+
+            var exp = Expression.Lambda<Func<Kandidat, bool>>(body, param);
+
+            
             return await _context.Kandidat.Where(exp).ToListAsync();
+        }
+
+        public async Task<int> GetIdByEmail(string email)
+        {
+            return await _context.Kandidat.Where(k => k.Email == email).Select(i => i.IdAccaNumber).FirstOrDefaultAsync();
+        }
+
+        public async Task<Kandidat> GetKandidat(int id)
+        {
+            return await _context.Kandidat.FindAsync(id);
         }
 
     }

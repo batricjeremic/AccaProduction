@@ -12,10 +12,14 @@ namespace AccaProduction.Models
         }
 
         public int Id { get; set; }
+
+        [Display(Name = "Oznaka")]
         public string OldCode { get; set; }
+
+        [Display(Name = "Nova oznaka")]
         public string NewCode { get; set; }
 
-        [Display(Name="Naziv Ispita")]
+        [Display(Name = "Naziv ispita")]
         public string Name { get; set; }
 
         public ICollection<Polaganja> Polaganja { get; set; }

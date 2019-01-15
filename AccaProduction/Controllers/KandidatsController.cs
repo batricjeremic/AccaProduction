@@ -18,54 +18,57 @@ namespace AccaProduction.Controllers
     public class KandidatsController : Controller
     {
         private readonly AccaCandidatesContext _context;
+        private readonly IKandidatRepository _kandidat;
+        private readonly IPolaganjaRepository _polaganja;
+        private readonly IIspitRepository _ispit;
 
-        public KandidatsController(AccaCandidatesContext context)
+        public KandidatsController(AccaCandidatesContext context, IKandidatRepository kandidat, IPolaganjaRepository polaganja, IIspitRepository ispit)
         {
             _context = context;
+            this._kandidat = kandidat;
+            this._polaganja = polaganja;
+            this._ispit = ispit;
         }
 
         // GET: Kandidats
         public async Task<IActionResult> Index(string option = null, string search = null)
         {
 
-            var kandidats = await _context.Kandidat.ToListAsync();
+            var kandidats = new List<Kandidat>();
 
-
-            //this code block should be replaced with dynamic query
-            if (option == "Email" && search != null)
+            if (search!=null)
             {
-                kandidats = kandidats.Where(u => u.Email.ToLower().Contains(search.ToLower())).ToList();
+                kandidats = await _kandidat.GetFilteredKandidats(option, search);
             }
             else
             {
-                if (option == "Ime" && search != null)
-                {
-                    kandidats = kandidats.Where(u => u.Ime.ToLower().Contains(search.ToLower())
-                            || u.Prezime.ToLower().Contains(search.ToLower())
-                    ).ToList();
-                }
-                else
-                {
-                    if (option == "Odeljenje" && search != null)
-                    {
-                        kandidats = kandidats.Where(u => u.Odeljenje.ToLower().Contains(search.ToLower())).ToList();
-                    }
-                }
+                kandidats = await _context.Kandidat.ToListAsync();
             }
+
+            
 
             return View(kandidats);
         }
 
         // GET: Kandidats/Details/5
+        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            int? kandidatId = id;
+
+            if (User.IsInRole(SD.AdminEndUser) && kandidatId == null)
             {
                 return NotFound();
             }
 
-            var kandidat = await _context.Kandidat
-                .FirstOrDefaultAsync(m => m.IdAccaNumber == id);
+            if (User.IsInRole(SD.CandidatEndUSer))
+            {
+                kandidatId = await _kandidat.GetIdByEmail(User.Identity.Name);
+            }
+
+            var kandidat = await _kandidat.GetKandidat((int)kandidatId);
+
             if (kandidat == null)
             {
                 return NotFound();
@@ -73,41 +76,12 @@ namespace AccaProduction.Controllers
 
             KandidatsAndExams ke = new KandidatsAndExams
             {
-                Kandidat = kandidat,
-                PolozeniIspiti = _context.Polaganja.Where(p => (p.KandidatId == kandidat.IdAccaNumber) && (p.StatusId == 3 || p.StatusId == 7)).Include(i => i.Ispit).Include(r => r.Rok).OrderBy(i => i.IspitId).ToList(),
-                NepolozeniIspiti = _context.Ispit.Include(p => p.Polaganja).Where(i => i.Polaganja.All(k => !(k.KandidatId == id) || (k.StatusId != 3 && k.StatusId != 7))).OrderBy(i => i.Id)
+                Kandidat = kandidat,                
+                PolozeniIspiti = await _polaganja.GetCompletedExams((int)kandidatId),
+                NepolozeniIspiti = await _ispit.GetNepolozeniIspiti((int)kandidatId)
             };
 
             return View(ke);
-        }
-
-        // GET: Kandidats/Detalji/email
-        [AllowAnonymous]
-        [Authorize(Roles = SD.CandidatEndUSer)]
-        public async Task<IActionResult> Detalji(string email)
-        {
-            if (email == null)
-            {
-                return NotFound();
-            }
-
-            int id = await _context.Kandidat.Where(k => k.Email == email).Select(i => i.IdAccaNumber).FirstOrDefaultAsync();
-
-            var kandidat = await _context.Kandidat
-                .FirstOrDefaultAsync(m => m.IdAccaNumber == id);
-            if (kandidat == null)
-            {
-                return NotFound();
-            }
-
-            KandidatsAndExams ke = new KandidatsAndExams
-            {
-                Kandidat = kandidat,
-                PolozeniIspiti = _context.Polaganja.Where(p => (p.KandidatId == kandidat.IdAccaNumber) && (p.StatusId == 3 || p.StatusId == 7)).Include(i => i.Ispit).Include(r => r.Rok).OrderBy(i => i.IspitId).ToList(),
-                NepolozeniIspiti = _context.Ispit.Include(p => p.Polaganja).Where(i => i.Polaganja.All(k => !(k.KandidatId == id) || k.StatusId != 3 || k.StatusId != 7)).OrderBy(i => i.Id)
-            };
-
-            return View("Details", ke);
         }
 
         // GET: Kandidats/Create
@@ -140,11 +114,13 @@ namespace AccaProduction.Controllers
                 return NotFound();
             }
 
-            var kandidat = await _context.Kandidat.FindAsync(id);
+            var kandidat = await _kandidat.GetKandidat((int)id);
+
             if (kandidat == null)
             {
                 return NotFound();
             }
+
             return View(kandidat);
         }
 

@@ -23,7 +23,7 @@ namespace AccaProduction.ViewModels
 
         public class NonProcessedExams : Polaganja
         {
-            [Display(Name = "Redni broj polaganja")]
+            [Display(Name = "Broj prethodnih polaganja")]
             public int TakeNumber { get; set; }
 
             public NonProcessedExams(Polaganja polaganje)

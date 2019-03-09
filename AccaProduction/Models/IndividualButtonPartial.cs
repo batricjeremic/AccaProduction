@@ -13,6 +13,7 @@ namespace AccaProduction.Models
         public String Action { get; set; }
         public string Glyph { get; set; }
         public string Text { get; set; }
+        public string Tooltip { get; set; }
 
 
         public int? KandidatId { get; set; }

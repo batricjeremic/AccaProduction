@@ -31,22 +31,14 @@ namespace AccaProduction.Controllers
         }
 
         // GET: Kandidats
-        public async Task<IActionResult> Index(string option = null, string search = null)
+        public async Task<IActionResult> Index(string option = null, string search = null, string submit = null)
         {
-
-            var kandidats = new List<Kandidat>();
-
-            if (search!=null)
-            {
-                kandidats = await _kandidat.GetFilteredKandidats(option, search);
+            if (submit=="export")
+            {              
+                    return RedirectToAction("ExportCandidates", "ExcelExport", new { option, search });
             }
-            else
-            {
-                kandidats = await _context.Kandidat.ToListAsync();
-            }
-
-            
-
+            var kandidats = await _kandidat.GetFilteredKandidats(option, search);
+         
             return View(kandidats);
         }
 

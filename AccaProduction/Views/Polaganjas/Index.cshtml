@@ -1,16 +1,71 @@
 ﻿@model AccaProduction.ViewModels.PolaganjasView
+@using AccaProduction.Utils
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Prijave";
 }
 
 <br />
 <h2>Pregled prijava i polaganja</h2>
 <hr />
 
-<div class="form-border">
-    <form asp-action="ExportToCsv">
-        <input class="btn btn-sm btn-success" type="submit" value="Eksport u Excel" />
-        <input type="hidden" asp-for="@Model.NonProcessed"/>
+<script>
+    function getSelectedAttribute() {
+        var sl = document.getElementById("firstAttribute");
+        return sl.options[sl.selectedIndex].text;
+    }
+    function changeSearchProperty() {
+        var rb1 = document.getElementById("option1");
+        var rb2 = document.getElementById("option2");
+        var rb3 = document.getElementById("option3");
+
+        var lb1 = document.getElementById("lbl1");
+        var lb2 = document.getElementById("lbl2");
+        var lb3 = document.getElementById("lbl3");
+
+        if (getSelectedAttribute() == "Ispit") {
+            rb1.value = "Name"; lb1.innerHTML = lb1.innerHTML.replace("Ime", "Naziv ispita");
+            rb2.value = "OldCode"; lb2.innerHTML = lb2.innerHTML.replace("Email", "Stara oznaka");
+            rb3.value = "NewCode"; lb3.innerHTML = lb3.innerHTML.replace("Odeljenje", "Nova oznaka");
+        }
+        if (getSelectedAttribute() == "Kandidat") {
+            rb1.value = "Ime"; lb1.innerHTML = lb1.innerHTML = lb1.innerHTML.replace("Naziv ispita", "Ime");
+            rb2.value = "Email"; lb2.innerHTML = lb2.innerHTML.replace("Stara oznaka", "Email");
+            rb3.value = "Odeljenje"; lb3.innerHTML = lb3.innerHTML.replace("Nova oznaka", "Odeljenje");
+        }
+    }
+</script>
+
+<div class="row">
+    <div class="col-sm-3">
+        <p hidden>
+            <a asp-action="ExportNonProcessed" asp-controller="ExcelExport" class="btn btn-sm btn-success">Export u Excel</a>
+        </p>
+    </div>
+    <form asp-controller="Polaganjas" asp-action="Index" method="get">
+        <div class="col-sm-9 pull-right">
+            <div class="row">
+                <div class="col-sm-12 text-right">
+                    <b>Pretraga: </b>
+                    <select id="firstAttribute" onchange="changeSearchProperty()" class="dropdown" name="firstAttribute">
+                        <option value="Kandidat">Kandidat</option>
+                        <option value="Ispit">Ispit</option>
+                    </select>
+                    <label id="lbl1" class="radio-inline">@Html.RadioButton("option", "Ime", true, new { @id = "option1" }) Ime</label>
+                    <label id="lbl2" class="radio-inline">@Html.RadioButton("option", "Email", new { @id = "option2" }) Email</label>
+                    <label id="lbl3" class="radio-inline">@Html.RadioButton("option", "Odeljenje", new { @id = "option3" }) Odeljenje</label>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="pull-right" style="padding-left:5px;">
+                    <button type="submit" name="submit" value="search" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search"></span> &nbsp; Traži
+                    </button>
+                </div>
+                <div class="pull-right">
+                    @Html.Editor("search", new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
     </form>
 </div>
 
@@ -18,7 +73,19 @@
 
 
 <div class="form-border">
-    <h4>Neprocesuirane prijave/ispiti</h4>
+    <div class="row" style="padding-right:25px">
+        <div class="col-sm-9">
+            <h4>Neprocesuirane prijave/ispiti</h4>
+        </div>
+        <div class="col-sm-3">
+
+            <p>
+                <a asp-action="ExportNonProcessed" asp-controller="ExcelExport" class="btn btn-sm btn-success pull-right">Izvoz u Excel</a>
+            </p>
+        </div>
+    </div>
+
+    <br />
 
     @if (Model.NonProcessed.Count() == 0)
     {
@@ -45,14 +112,24 @@
                     Ime i prezime
                 </th>
                 <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().StudyLeaveStartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().StudyLeaveEndDate)
+                </th>
+                <th>
                     @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().Status.StatusName)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.NonProcessed.FirstOrDefault().TakeNumber)
                 </th>
+                @if (User.IsInRole(SD.AdminEndUser))
+                {
                 <th>
                     Uredi
                 </th>
+                }
+                
             </tr>
 
 
@@ -75,14 +152,25 @@
                         @($"{item.Kandidat.Ime} {item.Kandidat.Prezime}")
                     </td>
                     <td>
+                        @Html.DisplayFor(modelItem => item.StudyLeaveStartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StudyLeaveEndDate)
+                    </td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.Status.StatusName)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.TakeNumber)
                     </td>
-                    <td>
-                        <a asp-action="Update" asp-controller="Polaganjas" asp-route-polaganjeID="@item.Id" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-ok"></span> &nbsp; Promeni status</a>
-                    </td>
+
+
+                    @if (User.IsInRole(SD.AdminEndUser))
+                    {
+                        <td>
+                            <a asp-action="Update" asp-controller="Polaganjas" asp-route-polaganjeID="@item.Id" class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-ok"></span> &nbsp; Promeni status</a>
+                        </td>}
+
                 </tr>
             }
 
@@ -94,7 +182,18 @@
 <br />
 
 <div class="form-border">
-    <h4>Procesuirani ispiti</h4>
+    <div class="row" style="padding-right:25px">
+        <div class="col-sm-9">
+            <h4>Procesuirani ispiti</h4>
+        </div>
+        <div class="col-sm-3">
+            <p>
+                <a asp-action="ExportProcessed" asp-controller="ExcelExport" class="btn btn-sm btn-success pull-right">Izvoz u Excel</a>
+            </p>
+        </div>
+    </div>
+
+    <br />
     <table class="table table-condensed table-striped table-hover">
         <tr>
             <th>
@@ -150,11 +249,5 @@
     </table>
 </div>
 <br />
-
-<script>
-    function getSelectListValue() {
-        return document.getElementById("statusID").nodeValue;
-    }
-</script>
 
 

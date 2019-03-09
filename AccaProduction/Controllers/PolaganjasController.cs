@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AccaProduction.Data;
@@ -15,8 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+
 using static AccaProduction.ViewModels.PolaganjasView;
 
 namespace AccaProduction.Controllers
@@ -40,13 +37,14 @@ namespace AccaProduction.Controllers
         }
 
         //GET: Index
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string firstAttribute = null, string option = null, string search = null)
         {
             PolaganjasView polaganjasView = new PolaganjasView()
             {                
                 Statusi = _context.StatusPrijave.ToList()
             };
 
+            
             if (!User.IsInRole(SD.AdminEndUser))
             {
                 int kandidatID = await _kandidat.GetIdByEmail(User.Identity.Name);
@@ -55,8 +53,8 @@ namespace AccaProduction.Controllers
             }
             else
             {
-                polaganjasView.NonProcessed = await _polaganja.GetNonProcessedRequests();
-                polaganjasView.Processed = await _polaganja.GetProcessedRequests();
+                polaganjasView.NonProcessed = await _polaganja.GetNonProcessedRequests(firstAttribute,option,search);
+                polaganjasView.Processed = await _polaganja.GetProcessedRequests(firstAttribute,option,search);
             }
 
             return View(polaganjasView);
@@ -84,7 +82,8 @@ namespace AccaProduction.Controllers
                 Ispit = ispit,
                 Ispits = await _context.Ispit.Select(i => i).ToListAsync(),
                 Roks = await _context.Rok.Where(r => r.ActiveStatus).Select(i => i).ToListAsync(),
-                BrojPolaganja = await _polaganja.GetExamTakeNumber((int)ispitID,(int)kandidatID),
+                BrojPolaganja = await _polaganja.GetExamTakeNumber(ispit.Id,kandidat.IdAccaNumber),
+                ExamTakesYTD = await _polaganja.GetExamTakeYTD(kandidat.IdAccaNumber),
                 NewPolaganje = new Polaganja()
                 {
                     IspitId=ispit.Id,
@@ -122,7 +121,7 @@ namespace AccaProduction.Controllers
                 return NotFound();
             }
 
-            Polaganja polaganje = await _context.Polaganja.Where(p => p.Id == polaganjeID).FirstOrDefaultAsync();
+            Polaganja polaganje = await _context.Polaganja.Where(p => p.Id == polaganjeID).Include(r=>r.Rok).FirstOrDefaultAsync();
 
             if (polaganje==null)
             {
@@ -153,47 +152,6 @@ namespace AccaProduction.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> ExportToCsv(IEnumerable<Polaganja> model)
-        {
-            string rootFolder = _hostingEnvironment.WebRootPath;
-            string fileName = "demo.xlsx";
-            string url = string.Format("{0}://{1}/{2}", Request.Scheme, Request.Host, fileName);
-            FileInfo file = new FileInfo(Path.Combine(rootFolder,fileName));
-
-            var memoryStream = new MemoryStream();
-
-            Type modelType = (new Polaganja()).GetType();
-            var modelTest = model.FirstOrDefault();
-
-            using (var fs = new FileStream(Path.Combine(rootFolder, fileName), FileMode.Create, FileAccess.Write))
-            {
-                IWorkbook workbook;
-                workbook = new XSSFWorkbook();
-                ISheet excelSheet = workbook.CreateSheet("export");
-
-                IRow row = excelSheet.CreateRow(0);
-
-                PropertyInfo[] properties = modelType.GetProperties();
-
-
-                //populateHeader
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    row.CreateCell(i).SetCellValue(properties[i].Name);
-                }
-                workbook.Write(fs);
-            }
-
-            using (var stream = new FileStream(Path.Combine(rootFolder, fileName), FileMode.Open))
-            {
-                await stream.CopyToAsync(memoryStream);
-            }
-
-            memoryStream.Position = 0;
-            return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-
-
-        }
 
         protected override void Dispose(bool disposing)
         {

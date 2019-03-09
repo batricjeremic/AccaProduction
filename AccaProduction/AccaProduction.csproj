@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>aspnet-AccaProduction-66339B78-D3D0-4739-822A-CDA00823DED5</UserSecretsId>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Chart.js" Version="2.7.3" />
     <PackageReference Include="DotNetCore.NPOI" Version="1.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
@@ -27,6 +29,20 @@
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Services\" />
+    <Folder Include="Connected Services\" />
+    <Folder Include="wwwroot\bower components\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\lib\Chart.js\Chart.bundle.js" />
+    <None Include="wwwroot\lib\Chart.js\Chart.bundle.min.js" />
+    <None Include="wwwroot\lib\Chart.js\Chart.js" />
+    <None Include="wwwroot\lib\Chart.js\Chart.min.js" />
+    <None Include="wwwroot\lib\Chart.js\LICENSE.md" />
+    <None Include="wwwroot\lib\Chart.js\samples\charts\area\analyser.js" />
+    <None Include="wwwroot\lib\Chart.js\samples\logo.svg" />
+    <None Include="wwwroot\lib\Chart.js\samples\samples.js" />
+    <None Include="wwwroot\lib\Chart.js\samples\utils.js" />
   </ItemGroup>
 
 </Project>

@@ -2,18 +2,22 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace AccaProduction.Models
 {
     public partial class AccaCandidatesContext : IdentityDbContext
     {
+        private readonly IConfiguration _configuration;
+
         public AccaCandidatesContext()
         {
         }
 
-        public AccaCandidatesContext(DbContextOptions<AccaCandidatesContext> options)
+        public AccaCandidatesContext(DbContextOptions<AccaCandidatesContext> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         
@@ -27,8 +31,7 @@ namespace AccaProduction.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-PFK93A1\\SQLEXPRESS;Database=Acca Candidates;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
             }
         }
 

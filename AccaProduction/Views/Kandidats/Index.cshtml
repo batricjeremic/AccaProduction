@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<AccaProduction.Models.Kandidat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Pregled kandidata";
 }
 
 <br />
@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-sm-12 text-right">
                     <b>Pretraga: </b>
-                    <label class="radio-inline">@Html.RadioButton("option", "Ime",true)Ime</label>
+                    <label class="radio-inline">@Html.RadioButton("option", "Ime", true)Ime</label>
                     <label class="radio-inline">@Html.RadioButton("option", "Email")Email</label>
                     <label class="radio-inline">@Html.RadioButton("option", "Odeljenje")Odeljenje</label>
                 </div>
@@ -34,12 +34,19 @@
                     @Html.Editor("search", new { htmlAttributes = new { @class = "form-control" } })
                 </div>
             </div>
+            <div class="row" style="padding:5px">
+                <div class="pull-right">
+                    <button type="submit" name="submit" value="export" class="btn btn-success">
+                        Izvoz u excel
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 </div>
 <br />
 <div class="form-border">
-    <table class="table table-condensed table-striped table-hover">
+    <table id="candidatesTable" class="table table-condensed table-striped table-hover">
         <thead>
             <tr>
                 <th>
@@ -57,7 +64,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Odeljenje)
                 </th>
-                
+
             </tr>
         </thead>
         <tbody>
@@ -80,10 +87,11 @@
                         @Html.DisplayFor(modelItem => item.Odeljenje)
                     </td>
                     <td>
-                        @Html.Partial("_TableButtonPartial", new IndividualButtonPartial { KandidatId = item.IdAccaNumber })
+                         @await Html.PartialAsync("_TableButtonPartial", new IndividualButtonPartial { KandidatId = item.IdAccaNumber })
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+

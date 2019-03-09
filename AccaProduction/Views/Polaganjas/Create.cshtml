@@ -15,7 +15,6 @@
 <br />
 <h2>Nova Prijava</h2>
 <hr />
-
 <form asp-action="Create" asp-controller="Polaganjas">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="@Model.NewPolaganje.KandidatId" />
@@ -68,10 +67,18 @@
         </div>
         <div class="row" style="padding:5px;">
             <div class="col-sm-2">
-                <label style="white-space:normal" class="label label-warning">Prethodnih polaganja</label>
+                <label style="white-space:normal" asp-for="@Model.BrojPolaganja" class="label label-warning">Prethodnih polaganja ispita</label>
             </div>
             <div class="col-sm-2">
                 <input class="form-control" asp-for="@Model.BrojPolaganja" disabled style="padding-left:5px;text-align:right" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-sm-2">
+                <label style="white-space:normal" asp-for="@Model.ExamTakesYTD" class="label label-warning">Polaganja u toku godine</label>
+            </div>
+            <div class="col-sm-2">
+                <input class="form-control" asp-for="@Model.ExamTakesYTD" disabled style="padding-left:5px;text-align:right" />
             </div>
         </div>
         <div class="row" style="padding:5px;">
@@ -114,25 +121,46 @@
         </div>
         <hr />
 
-        @if (Model.BrojPolaganja > 1)
+        @if (Model.BrojPolaganja > 1 || Model.ExamTakesYTD > 3)
         {
-            <div class="alert alert-warning" style="padding:5px;">
-                <strong>Obaveštenje!</strong> Ovaj ispit ste već polagali. Prijava ispita podrazumevaće <strong>obustavu ispita od zarade!</strong>
+        <div class="alert alert-warning fade in" style="padding:5px;opacity:0.8">
+            <label><strong>Obaveštenje!</strong> Ovaj ispit ste već polagali. Prijava ispita podrazumevaće <strong>obustavu troškova ispita od zarade!</strong></label>
+
+            <div class="checkbox" style="padding:0px">
+                <label><input type="checkbox" class="checkbox-inline" onchange="checkform()" onload="checkform()" id="cbDeductionConsent" /> &nbsp; Slažem se da snosim troškove polaganja ispita.</label>
             </div>
+        </div>
         }
 
-        <input type="submit" class="btn btn-sm btn-primary form-control" value="Prijavi Ispit" style="width:auto" />
-        @if (User.IsInRole(SD.CandidatEndUSer))
-        {
-            <a class="btn btn-sm btn-success" asp-action="Detalji" asp-route-email="@Model.Kandidat.Email" asp-controller="Kandidats">Povratak na status kandidata</a>
-        }
+        <input type="submit" id="submit" class="btn btn-sm btn-primary form-control" value="Prijavi Ispit" style="width:auto" />
+
+
+        <a class="btn btn-sm btn-default" asp-action="Details" asp-route-id="@Model.Kandidat.IdAccaNumber" asp-controller="Kandidats">Povratak na status kandidata</a>
+
 
         @if (User.IsInRole(SD.AdminEndUser))
         {
-            <a class="btn btn-sm btn-default" asp-action="Details" asp-route-id="@Model.Kandidat.IdAccaNumber" asp-controller="Kandidats">Povratak na status kandidata</a>
             <a class="btn btn-sm btn-success" asp-action="Index" asp-controller="Kandidats">Povratak na listu kandidata</a>
         }
     </div>
 </form>
+
+<script>
+
+    document.onload(checkform());
+
+    function checkform() {
+        var checkBox = document.getElementById('cbDeductionConsent');
+
+        var cansubmit = checkBox.checked;
+
+
+
+        document.getElementById('submit').disabled = !cansubmit;
+    }
+
+
+
+</script>
 
 

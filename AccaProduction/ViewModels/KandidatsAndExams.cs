@@ -21,6 +21,7 @@ namespace AccaProduction.ViewModels
         public Rok Rok { get; set; }
 
         public int BrojPolaganja { get; set; }
+        public int ExamTakesYTD { get; set; }
 
         public Polaganja NewPolaganje { get; set; }
 

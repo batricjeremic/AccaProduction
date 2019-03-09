@@ -10,11 +10,11 @@ namespace AccaProduction.Repository
 
         Task<IEnumerable<Polaganja>> GetCompletedExams(int kandidatID);
 
-        Task<IEnumerable<NonProcessedExams>> GetNonProcessedRequests();
+        Task<IEnumerable<NonProcessedExams>> GetNonProcessedRequests(string firstAttribute = null, string innerAtt = null, string search = null);
         Task<IEnumerable<NonProcessedExams>> GetNonProcessedRequests(int kandidatID);
 
 
-        Task<IEnumerable<Polaganja>> GetProcessedRequests();
+        Task<IEnumerable<Polaganja>> GetProcessedRequests(string firstAttribute = null, string innerAtt = null, string search = null);
         Task<IEnumerable<Polaganja>> GetProcessedRequests(int kandidatID);
 
         Task<int> GetExamTakeNumber(int ispitID, int kandidatID);

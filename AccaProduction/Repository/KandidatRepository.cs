@@ -17,9 +17,13 @@ namespace AccaProduction.Repository
             this._context = context;
         }
 
-
         public async Task<List<Kandidat>> GetFilteredKandidats(string filterProperty, string filterValue)
         {
+            if (filterProperty==null || filterValue==null)
+            {
+                return await _context.Kandidat.ToListAsync();
+            }
+
             var param = Expression.Parameter(typeof(Kandidat), "k");
 
             var property = Expression.Property(param, filterProperty);

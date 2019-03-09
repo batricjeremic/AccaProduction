@@ -40,7 +40,10 @@ namespace AccaProduction
             services.AddScoped<IPolaganjaRepository, PolaganjaRepository>();
             services.AddScoped<IIspitRepository, IspitRepository>();
 
-            services.AddDbContext<AccaCandidatesContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<AccaCandidatesContext>(options => 
+            options.UseSqlServer(Configuration.GetConnectionString("Azure")));
+
+            
 
             services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultUI().AddEntityFrameworkStores<AccaCandidatesContext>();
 

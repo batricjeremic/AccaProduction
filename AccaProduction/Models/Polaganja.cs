@@ -24,8 +24,10 @@ namespace AccaProduction.Models
         public bool PotrebneKnjige { get; set; }
 
         [Display(Name = "Početak odsustva")]
+        [DisplayFormat(DataFormatString = "{0: dd MMMM yyyy}")]
         public DateTime? StudyLeaveStartDate { get; set; }
         [Display(Name = "Završetak odsustva")]
+        [DisplayFormat(DataFormatString = "{0: dd MMMM yyyy}")]
         public DateTime? StudyLeaveEndDate { get; set; }
 
         [Required]

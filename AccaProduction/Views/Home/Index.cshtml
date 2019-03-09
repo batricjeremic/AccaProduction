@@ -1,60 +1,298 @@
 ﻿@model AccaProduction.ViewModels.Dashboard
 
 @{
-    ViewData["Title"] = "Dežbord";
+	ViewData["Title"] = "Dežbord";
 }
 
+@{
+	decimal succesRate = (decimal)Model.BrojUspesnihPolaganja / Model.UkupanBrojPolaganja;
+	var labels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["Labels"]);
+	var values = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["Values"]);
+	var passedOnly = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["PassedCount"]);
+	var cpcLabeles = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["CPCLabels"]);
+	var cpcCount = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["CPCCount"]);
+
+}
 
 <br />
 <h2>Kratak pregled</h2>
 <hr />
 
-<div class="row">
-    @* U ovom redu treba prikazati tabelu sa osnovnim informacijama *@
-    <div class="col-sm-3">
-        <div class="row" style="padding:3px;">
-            <div class="col-sm-6" style="padding-left:5px;">
-                <label class="label label-info"><span class="glyphicon glyphicon-heart"></span>&nbsp; Aktivnih kandidata:</label>
-            </div>
-            <div class="col-sm-4 col-sm-offset-2">
-                <input asp-for="@Model.BrojKandidata" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
-            </div>
-        </div>
-        <div class="row" style="padding:3px;">
-            <div class="col-sm-6" style="padding-left:5px;">
-                <label class="label label-info"><span class="glyphicon glyphicon-book"></span>&nbsp; Ispita u programu:</label>
-            </div>
-            <div class="col-sm-4 col-sm-offset-2">
-                <input asp-for="@Model.BrojIspita" class="form-control" style="text-align:right; height:25px; padding-right:0px;" disabled />
-            </div>
-        </div>
-        <div class="row" style="padding:3px;">
-            <div class="col-sm-6" style="padding-left:5px;">
-                <label class="label label-info"><span class="glyphicon glyphicon-tasks"></span>&nbsp; Broj prijava:</label>
-            </div>
-            <div class="col-sm-4 col-sm-offset-2">
-                <input asp-for="@Model.UkupanBrojPolaganja" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
-            </div>
-        </div>
-        <div class="row" style="padding:3px;">
-            <div class="col-sm-6" style="padding-left:5px;">
-                <label class="label label-info"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp; Uspešnih polaganja:</label>
-            </div>
-            <div class="col-sm-4 col-sm-offset-2">
-                <input asp-for="@Model.BrojUspesnihPolaganja" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
-            </div>
-        </div>
+<!-- Main content -->
+<section class="content">
+	<!-- Small boxes (Stat box) -->
+	<div class="row">
+		<div class="col-lg-3 col-xs-6">
+			<!-- small box -->
+			<div class="small-box" style="background-color:#ffdb00">
+				<div class="inner">
+					<h3>@Model.BrojKandidata</h3>
+					<p>Kandidata</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-users"></i>
+				</div>
+				<a href="Kandidats" class="small-box-footer">Pregledaj kandidate <i class="fa fa-arrow-circle-right"></i></a>
+			</div>
+		</div>
+		<!-- ./col -->
+		<div class="col-lg-3 col-xs-6">
+			<!-- small box -->
+			<div class="small-box" style="background-color:#cccccc">
+				<div class="inner">
+					<h3>@Model.BrojIspita<sup style="font-size: 20px"></sup></h3>
+					<p>Ispita u programu</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-book"></i>
+				</div>
+				<a href="Polaganjas" class="small-box-footer">Detalji ispita <i class="fa fa-arrow-circle-right"></i></a>
+			</div>
+		</div>
+		<!-- ./col -->
+		<div class="col-lg-3 col-xs-6">
+			<!-- small box -->
+			<div class="small-box" style="background-color:#797878">
+				<div class="inner">
+					<h3>@Model.UkupanBrojPolaganja</h3>
+					<p>Broj prijava</p>
+				</div>
+				<div class="icon">
+					<i class="ion ion-paperclip"></i>
+				</div>
+				<a href="Polaganjas" class="small-box-footer">Pogledaj prijave <i class="fa fa-arrow-circle-right"></i></a>
+			</div>
+		</div>
+		<!-- ./col -->
+		<div class="col-lg-3 col-xs-6">
+			<!-- small box -->
+			<div class="small-box" style="background-color:#cccccc">
+				<div class="inner">
+					<h3>@ViewData["procenatUspesnosti"]</h3>
+					<p>Uspešnost</p>
+				</div>
+				<div class="icon">
+					<i class="ion ion-pie-graph"></i>
+				</div>
+				<a href="#" class="small-box-footer">Informacije <i class="fa fa-arrow-circle-right"></i></a>
+			</div>
+		</div>
+		<!-- ./col -->
+	</div>
+	<!-- /.row -->
+	<!-- Main row -->
+	<div class="row">
+		<!-- Left col -->
+		<section class="col-lg-3 connectedSortable">
+			<!-- Custom tabs (Charts with tabs)-->
+			<!-- DONUT CHART -->
+			<div class="box box-ey">
+				<div class="box-header with-border">
+					<h3 class="box-title">Kandidati po zemljama</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+					</div>
+				</div>
+				<div class="box-body chart-responsive">
+					<div class="chart" id="countryDispersion" style="height: 300px; position: relative; font-family:Calibri"></div>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.nav-tabs-custom -->
+		</section>
+		<!-- /.Left col -->
+		<section class="col-lg-6 connectedSortable">
 
-        <div class="row" style="padding:3px;">
-            <div class="col-sm-6" style="padding-left:5px;">
-                <label class="label label-info"><span class="glyphicon glyphicon-leaf"></span>&nbsp; Uspešnost:</label>
-            </div>
-            <div class="col-sm-4 col-sm-offset-2">
-                <input value="@ViewData["procenatUspesnosti"]" class="form-control" style="text-align:right; height:25px;padding-right:0px;" disabled />
-            </div>
-        </div>
+			<div class="box box-ey">
+				<div class="box-header with-border">
+					<h3 class="box-title">Prijavljeni i položeni ispiti po rokovima</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+					</div>
+				</div>
+				<div class="box-body chart-responsive">
 
-    </div>
-    
-</div>
+					<canvas id="MyChart"></canvas>
+				</div>
+			</div>
+		</section>
+
+		<!-- right col (We are only adding the ID to make the widgets sortable)-->
+		<section class="col-lg-3 connectedSortable">
+			<!-- Custom tabs (Charts with tabs)-->
+			<!-- DONUT CHART -->
+			<div class="box box-ey">
+				<div class="box-header with-border">
+					<h3 class="box-title" style="font-size:medium">Kandidati po odeljenjima</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+					</div>
+				</div>
+				<div class="box-body chart-responsive">
+					<div class="chart" id="departmentDispersion" style="height: 300px; position: relative; font-family:Calibri"></div>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.nav-tabs-custom -->
+		</section>
+
+		<!-- right col -->
+	</div>
+	<!-- /.row (main row) -->
+	<!-- Main row -->
+	<div class="row">
+		<!-- Left col -->
+		<section class="col-lg-6 connectedSortable">
+			<!-- Custom tabs (Charts with tabs)-->
+			<!-- DONUT CHART -->
+			<div class="box box-ey">
+				<div class="box-header with-border">
+					<h3 class="box-title">Kandidati po zemljama</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse">
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+					</div>
+				</div>
+				<div class="box-body chart-responsive">
+					<canvas id="countries"></canvas>
+				</div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.nav-tabs-custom -->
+		</section>
+
+		<!-- /.Left col -->
+		<!-- right col (We are only adding the ID to make the widgets sortable)-->
+		<!-- right col -->
+	</div>
+	<!-- /.row (main row) -->
+</section>
+
+<!-- Morris.js charts -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/bower components/raphael/raphael.min.js"></script>
+<script src="~/bower components/morris.js/morris.min.js"></script>
+<script src="~/lib/Chart.js/Chart.bundle.min.js"></script>
+
+<script>
+  $(function () {
+	"use strict";
+	//DONUT CHART
+	var donut = new Morris.Donut({
+	  element: 'countryDispersion',
+	  resize: true,
+	  colors: ["#ffdb00", "#cccccc", "#999999"],
+	  data: [
+		{label: "Srbija", value: @Model.KandidataSrb},
+		{label: "Bosna i Hercegovina", value: @Model.KandidataBH},
+		{label: "Crna Gora", value: @Model.KandidataMNE}
+	  ],
+	  hideHover: 'auto'
+	});
+  });
+</script>
+
+<script>
+  $(function () {
+	"use strict";
+	//DONUT CHART
+	var donut = new Morris.Donut({
+	  element: 'departmentDispersion',
+	  resize: true,
+	  colors: ["#ffdb00", "#cccccc", "#999999"],
+	  data: [
+		{label: "Assurance", value: @Model.KandidataAssurance},
+		{label: "TAS", value: @Model.KandidataTAS},
+		{label: "Ostalo", value: @Model.KandidataOstalo}
+	  ],
+	  hideHover: 'auto'
+	});
+  });
+</script>
+
+<script>
+
+    var barChartData = {
+        labels: @Html.Raw(labels),
+        datasets: [{
+            label: 'Ukupan broj prijava',
+            backgroundColor: "#ffdb00",
+            borderColor: "#ffdb00",
+            borderWidth: 1,
+            data: @Html.Raw(values)
+			}, {
+            label: 'Položeni ispiti',
+            backgroundColor: "#797878",
+            borderColor: "#797878",
+            borderWidth: 1,
+            data: @Html.Raw(passedOnly)
+			}]
+
+    };
+
+    var config = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: @Html.Raw(cpcCount),
+					backgroundColor: [
+						"#ffdb00",
+						"#797878",
+						"#cccccc"						
+					],
+					label: 'Zemlje'
+				}],
+				labels: @Html.Raw(cpcLabeles)
+			},
+			options: {
+				responsive: true,
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'Pregled kandidata po zemljama'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				}
+			}
+		};
+	window.onload = function() {
+			var ctx = document.getElementById('MyChart').getContext('2d');
+			window.myBar = new Chart(ctx, {
+				type: 'bar',
+				data: barChartData,
+				options: {
+					responsive: true,
+					legend: {
+						position: 'top',
+					},
+					title: {
+						display: true,
+						text: 'Prijave po ispitnim rokovima'
+					}
+				}
+        });
+
+        var ctg = document.getElementById('countries').getContext('2d');
+        window.myDoughnut = new Chart(ctg, config);
+
+		};
+
+</script>
+
+
 

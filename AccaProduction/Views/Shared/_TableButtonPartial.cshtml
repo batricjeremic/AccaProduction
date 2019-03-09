@@ -2,30 +2,33 @@
 
 <td style="width:150px;">
     <div class="btn-group" role="group">
-        @Html.Partial("_IndividualButtonPartial", new IndividualButtonPartial
+        @await Html.PartialAsync("_IndividualButtonPartial", new IndividualButtonPartial
         {
             Action = "Edit",
                     ButtonType = "btn-primary",
+Tooltip = "Uredi detalje kandidata",
                     Glyph = "pencil",
                     Text = "Edit",
                     KandidatId = Model.KandidatId,
                     RokId = Model.RokId
         })
-        @Html.Partial("_IndividualButtonPartial", new IndividualButtonPartial
-       {
-           Action = "Details",
-           ButtonType = "btn-success",
-           Glyph = "list",
-           Text = "Details",
-           KandidatId = Model.KandidatId,
-           RokId = Model.RokId
+        @await Html.PartialAsync("_IndividualButtonPartial", new IndividualButtonPartial
+   {
+       Action = "Details",
+       ButtonType = "btn-success",
+       Glyph = "list",
+       Tooltip = "Pregledaj status kandidata",
+       Text = "Details",
+       KandidatId = Model.KandidatId,
+       RokId = Model.RokId
 
-       })
-        @Html.Partial("_IndividualButtonPartial", new IndividualButtonPartial
+   })
+        @await Html.PartialAsync("_IndividualButtonPartial", new IndividualButtonPartial
    {
        Action = "Delete",
        ButtonType = "btn-danger",
        Glyph = "trash",
+       Tooltip = "Obriši kandidata",
        Text = "Edit",
        KandidatId = Model.KandidatId,
        RokId = Model.RokId
